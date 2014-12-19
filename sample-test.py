@@ -31,7 +31,7 @@ baseurl = "https://www.moat.com/"
 
 def ajax_complete(self):
    try:
-	   return 0 == driver.execute_script("return jQuery.active")
+	   return 0 == self.driver.execute_script("return jQuery.active")
    except WebDriverException:
 	   pass
 	
@@ -52,7 +52,7 @@ class PythonOrgSearch(unittest.TestCase):
 		element_to_hover_over = self.driver.find_element_by_css_selector(locator['ad_container'])
 		hover = ActionChains(self.driver).move_to_element(element_to_hover_over)
 		hover.perform()
-		self.driver.execute_script(" $('[title=Share] a').click()")
+		self.driver.execute_script(" $('[title=\"Share\"] a').click()")
 		share_url = self.driver.execute_script(" return $('[title= \"Share\"] input').val()")
 		print share_url
 		self.driver.get(share_url)
@@ -121,15 +121,21 @@ class PythonOrgSearch(unittest.TestCase):
 			  	while (self.driver.find_elements_by_css_selector(locator['show_more']).count >= 1):
 			  	
 			  		self.driver.find_element_by_css_selector(locator['show_more']).click()
-			  		try:
-			  			img = self.driver.find_elements_by_css_selector(locator['image'])
-			  			while(len(img) > 0 and img[0].is_displayed()):
+
+			  		while (ajax_complete(self) == False):
 			  				True
+
+			  		try:
+			  			show = self.driver.find_elements_by_css_selector(locator['show_more'])
 			  		except Exception:
-			  			print "NoSuchElementException"		
-			  			ad_container_count = len(self.driver.find_elements_by_css_selector(locator['ad_container']))
-			  			print ad_container_count
-			  			self.assertEqual(str(ad_container_count),str(ad_summary))
+			  			print "NoSuchElementException"
+			  			raise
+			       			
+
+
+			  	ad_container_count = len(self.driver.find_elements_by_css_selector(locator['ad_container']))
+			  	print ad_container_count
+			  	self.assertEqual(int(ad_container_count),int(ad_summary))
 
 			
 	def tearDown(self):
